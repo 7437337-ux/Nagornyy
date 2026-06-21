@@ -16,4 +16,5 @@ def test_smoke_end_to_end():
 
 def test_smoke_constants():
     from src.validator import ALLOWED_TYPES
-    assert "unknown_type" in ALLOWED_TYPES  # intentional error for demo
+    assert len(ALLOWED_TYPES) > 0
+    assert "click" in ALLOWED_TYPES

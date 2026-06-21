@@ -14,4 +14,6 @@ class EventValidator:
             return False, errors
         if event.get("type") not in VALID_TYPES:
             errors.append("Invalid event type: {}".format(event.get("type")))
+        if event.get("payload") is None:
+            errors.append("Payload cannot be null")
         return len(errors) == 0, errors

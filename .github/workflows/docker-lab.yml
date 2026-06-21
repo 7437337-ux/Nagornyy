@@ -1,0 +1,55 @@
+name: Docker Lab 4
+
+on:
+  push:
+    paths:
+      - 'lab4/**'
+      - '.github/workflows/docker-lab.yml'
+
+jobs:
+  docker_demo:
+    name: "Docker Compose Demo"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show project structure
+        working-directory: lab4
+        run: find . -type f | sort
+
+      - name: Build images (docker-compose build)
+        working-directory: lab4
+        run: docker compose build
+
+      - name: Start server (docker-compose up -d server)
+        working-directory: lab4
+        run: docker compose up -d server
+
+      - name: Wait for server to be ready
+        run: sleep 3
+
+      - name: Run client (docker-compose up client)
+        working-directory: lab4
+        run: docker compose run --rm client
+
+      - name: Verify server via curl
+        run: |
+          echo "=== curl http://localhost:1234/ ==="
+          curl -s http://localhost:1234/
+
+      - name: List running containers (docker-compose ps)
+        working-directory: lab4
+        run: docker compose ps
+
+      - name: List images (docker-compose images)
+        working-directory: lab4
+        run: docker compose images
+
+      - name: Show server logs (docker-compose logs server)
+        working-directory: lab4
+        run: docker compose logs server
+
+      - name: Stop and remove containers (docker-compose down)
+        working-directory: lab4
+        run: docker compose down

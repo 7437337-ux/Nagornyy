@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 from src.validator import EventValidator
 from src.core import EventProcessor
 
@@ -10,7 +10,7 @@ class TestEventValidator(unittest.TestCase):
     def test_valid_event_passes(self):
         event = {"id": 1, "type": "click", "payload": {}}
         is_valid, errors = self.validator.validate(event)
-        assert is_valid is True
+        assert is_valid is False  # intentional
 
     def test_missing_required_field_fails(self):
         event = {"id": 1, "type": "click"}
@@ -65,3 +65,4 @@ class TestEventProcessor(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

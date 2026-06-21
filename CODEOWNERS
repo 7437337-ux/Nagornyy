@@ -1,0 +1,5 @@
+# CODEOWNERS
+* @7437337-ux
+/src/ @7437337-ux
+/tests/ @7437337-ux
+/.github/ @7437337-ux

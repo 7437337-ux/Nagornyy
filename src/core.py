@@ -14,7 +14,7 @@ class EventProcessor:
         self._stats["processed"] += 1
         return {"status": "ok", "event": event}
 
-    def process_batch(self, events):
+    def process_batch(self, events: list) -> list:
         results = []
         for event in events:
             try:

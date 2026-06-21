@@ -1,4 +1,5 @@
 VALID_TYPES = {"click", "submit", "view", "error", "custom"}
+ALLOWED_TYPES = VALID_TYPES
 REQUIRED_FIELDS = {"id", "type", "payload"}
 
 

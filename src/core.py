@@ -31,4 +31,8 @@ class EventProcessor:
         return results
 
     def get_stats(self):
-        return dict(self._stats)
+        return {
+            "processed": self._stats["processed"],
+            "total_processed": self._stats["processed"],
+            "errors": self._stats["errors"],
+        }

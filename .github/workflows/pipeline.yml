@@ -1,0 +1,85 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  test:
+    name: "Stage 1: Test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: pytest tests/test_core.py -v --tb=short
+      - run: flake8 src/ tests/ --max-line-length=100
+      - run: bandit -r src/ -ll -q
+
+  build:
+    name: "Stage 2: Build"
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build artifact
+        run: |
+          mkdir -p dist
+          echo "Version: 1.1.0" > dist/build-info.txt
+          echo "Build: ${{ github.run_number }}" >> dist/build-info.txt
+          echo "Commit: ${{ github.sha }}" >> dist/build-info.txt
+          cp -r src dist/
+          zip -r dist/app-${{ github.run_number }}.zip dist/src dist/build-info.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-artifact-${{ github.run_number }}
+          path: dist/app-${{ github.run_number }}.zip
+
+  deploy_staging:
+    name: "Stage 3: Deploy to Staging"
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-artifact-${{ github.run_number }}
+          path: ./artifact
+      - name: Deploy to staging
+        run: |
+          unzip ./artifact/app-${{ github.run_number }}.zip -d ./staging-deploy
+          cat ./staging-deploy/dist/build-info.txt
+          echo "Deploy to STAGING complete!"
+
+  verify_staging:
+    name: "Stage 4: Verify Staging"
+    needs: deploy_staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m pytest tests/smoke_test.py -v --tb=short
+
+  deploy_production:
+    name: "Stage 5: Deploy to Production"
+    needs: verify_staging
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-artifact-${{ github.run_number }}
+          path: ./artifact
+      - name: Deploy to production
+        run: |
+          unzip ./artifact/app-${{ github.run_number }}.zip -d ./prod-deploy
+          cat ./prod-deploy/dist/build-info.txt
+          echo "PRODUCTION deployment complete!"

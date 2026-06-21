@@ -2,6 +2,8 @@ from src.validator import EventValidator
 
 
 class EventProcessor:
+    VERSION = "1.0.0"
+
     def __init__(self):
         self.validator = EventValidator()
         self._stats = {"processed": 0, "errors": 0}
